@@ -1,0 +1,371 @@
+<!DOCTYPE html><html lang="rw">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Video Rewards – Prototype v0</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .chip{ @apply px-2 py-0.5 rounded-full text-xs border; }
+    .card{ @apply bg-white rounded-2xl shadow p-4; }
+    .btn{ @apply px-3 py-2 rounded-xl border hover:shadow active:scale-[.98] disabled:opacity-50 disabled:cursor-not-allowed; }
+    .btn-primary{ @apply bg-black text-white border-black; }
+    .btn-ghost{ @apply border; }
+    .tab{ @apply px-3 py-2 rounded-xl cursor-pointer border; }
+    .tab.active{ @apply bg-black text-white border-black; }
+  </style>
+</head>
+<body class="min-h-screen bg-gray-50 text-gray-900">
+  <header class="max-w-6xl mx-auto p-4 flex items-center justify-between">
+    <h1 class="text-2xl font-bold">🎬 Video Rewards – Prototype</h1>
+    <div>
+      <span class="chip">Ads: Google & Banners</span>
+      <span class="chip ml-2">SSL • Security Rules</span>
+    </div>
+  </header>  <main class="max-w-6xl mx-auto p-4 grid gap-4">
+    <!-- NAV TABS -->
+    <nav class="flex gap-2">
+      <button class="tab active" data-tab="visitor">Visitors</button>
+      <button class="tab" data-tab="creator">Dashboard (Abakorera amafaranga)</button>
+      <button class="tab" data-tab="buyer">Dashboard (Abaguze services)</button>
+      <button class="tab" data-tab="admin">Admin</button>
+      <button class="tab" data-tab="videos">Video Library</button>
+      <button class="tab" data-tab="rules">Rules & Security</button>
+    </nav><!-- AUTH CARD -->
+<section class="card" id="auth">
+  <h2 class="font-semibold mb-2">Signup / Login (Mock)</h2>
+  <div class="flex flex-wrap items-end gap-2">
+    <label class="grid gap-1">
+      <span class="text-sm">Email</span>
+      <input id="email" class="border rounded-lg px-3 py-2" placeholder="user@example.com" />
+    </label>
+    <label class="grid gap-1">
+      <span class="text-sm">Role</span>
+      <select id="role" class="border rounded-lg px-3 py-2">
+        <option value="visitor">Visitor</option>
+        <option value="creator">Abakorera amafaranga</option>
+        <option value="buyer">Abaguze services</option>
+        <option value="admin">Admin</option>
+      </select>
+    </label>
+    <button id="loginBtn" class="btn btn-primary">Enter</button>
+    <span id="authState" class="text-sm"></span>
+  </div>
+</section>
+
+<!-- VISITOR PANEL -->
+<section class="card" data-panel="visitor">
+  <h2 class="font-semibold mb-2">Visitors (Abinjira)</h2>
+  <p class="text-sm mb-3">Reba ama video, ukore <em>Tasks</em> (Watch, Like, Comment, Subscribe) kugira ubone <strong>Points</strong>. Iyo ugeze kuri limite, ushobora kuyahindura <strong>Rewards</strong>.</p>
+  <div class="grid md:grid-cols-2 gap-3" id="visitorVideos"></div>
+  <div class="mt-3 flex items-center gap-2">
+    <span class="chip">Points: <span id="vPoints">0</span></span>
+    <button id="claimReward" class="btn btn-ghost" disabled>Claim Reward</button>
+    <span class="text-xs text-gray-500">(limit: 100 points → 1.00 EUR)</span>
+  </div>
+</section>
+
+<!-- CREATOR DASHBOARD -->
+<section class="card hidden" data-panel="creator">
+  <h2 class="font-semibold mb-2">Dashboard – Abakorera Amafaranga</h2>
+  <div class="grid md:grid-cols-3 gap-3">
+    <div class="card">
+      <div class="text-sm">Amafaranga</div>
+      <div class="text-2xl font-bold"><span id="cBalance">0.00</span> EUR</div>
+      <button id="withdrawBtn" class="btn btn-primary mt-2" disabled>Withdraw</button>
+      <p class="text-xs text-gray-500 mt-1">Min: 10 EUR • Visa • PayPal • Crypto • Mobile Money</p>
+    </div>
+    <div class="card col-span-2">
+      <div class="flex items-center justify-between">
+        <div class="font-medium">Tasks Performance</div>
+        <span class="chip">Rewards System</span>
+      </div>
+      <div class="grid grid-cols-4 gap-2 mt-2 text-center text-sm">
+        <div class="p-2 border rounded-xl">
+          <div class="text-2xl font-bold" id="cViews">0</div>
+          <div>Views</div>
+        </div>
+        <div class="p-2 border rounded-xl">
+          <div class="text-2xl font-bold" id="cLikes">0</div>
+          <div>Likes</div>
+        </div>
+        <div class="p-2 border rounded-xl">
+          <div class="text-2xl font-bold" id="cComments">0</div>
+          <div>Comments</div>
+        </div>
+        <div class="p-2 border rounded-xl">
+          <div class="text-2xl font-bold" id="cSubs">0</div>
+          <div>Subscribes</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="mt-3">
+    <div class="font-medium mb-2">Ledger</div>
+    <table class="w-full text-sm border" id="creatorLedger">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="p-2 text-left">Igihe</th>
+          <th class="p-2 text-left">Ibisobanuro</th>
+          <th class="p-2 text-right">EUR</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- BUYER DASHBOARD -->
+<section class="card hidden" data-panel="buyer">
+  <h2 class="font-semibold mb-2">Dashboard – Abaguze services</h2>
+  <div class="grid md:grid-cols-2 gap-3">
+    <div class="card">
+      <div class="font-medium">Gura Campaign</div>
+      <label class="grid gap-1 mt-2">
+        <span class="text-sm">Video URL</span>
+        <input id="bUrl" class="border rounded-lg px-3 py-2" placeholder="https://…" />
+      </label>
+      <label class="grid gap-1 mt-2">
+        <span class="text-sm">Target Views</span>
+        <input id="bViews" type="number" class="border rounded-lg px-3 py-2" value="1000" />
+      </label>
+      <button id="startCampaign" class="btn btn-primary mt-2">Tanguza</button>
+      <p class="text-xs text-gray-500 mt-1">Amafaranga azagenwa na Admin rules.</p>
+    </div>
+    <div class="card">
+      <div class="font-medium">Status ya Campaign</div>
+      <div id="buyerStatus" class="text-sm text-gray-600">Nta campaign yatangujwe.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ADMIN DASHBOARD -->
+<section class="card hidden" data-panel="admin">
+  <h2 class="font-semibold mb-2">Admin Dashboard</h2>
+  <div class="grid md:grid-cols-3 gap-3">
+    <div class="card">
+      <div class="font-medium">Rules & Security</div>
+      <label class="flex items-center gap-2 mt-2 text-sm">
+        <input id="ruleKYC" type="checkbox" class="h-4 w-4" checked /> KYC (Identity required)
+      </label>
+      <label class="flex items-center gap-2 mt-1 text-sm">
+        <input id="ruleMinPayout" type="number" class="border rounded px-2 py-1 w-24" value="10" /> Min Payout (EUR)
+      </label>
+      <label class="flex items-center gap-2 mt-1 text-sm">
+        <input id="rulePointRate" type="number" class="border rounded px-2 py-1 w-24" value="100" /> Points → 1 EUR
+      </label>
+      <button id="saveRules" class="btn btn-ghost mt-2">Bika</button>
+      <div id="ruleSaved" class="text-xs text-green-600 hidden mt-1">Rules zabitswe.</div>
+    </div>
+    <div class="card col-span-2">
+      <div class="font-medium">Payments / Exchange</div>
+      <div class="grid md:grid-cols-2 gap-2 mt-2 text-sm">
+        <div class="border rounded-xl p-2">
+          <div class="font-medium mb-1">Payment Channels</div>
+          <ul class="list-disc ml-5">
+            <li>Visa/Mastercard (Stripe/Flutterwave)</li>
+            <li>PayPal</li>
+            <li>Crypto (USDT/BTC)</li>
+            <li>Mobile Money (MTN/Airtel/Smart – via aggregator)</li>
+          </ul>
+        </div>
+        <div class="border rounded-xl p-2">
+          <div class="font-medium mb-1">Bank & Exchange</div>
+          <ul class="list-disc ml-5">
+            <li>Bancobu Euro Account</li>
+            <li>Exchange: Amafaranga ↔ EUR</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VIDEO LIBRARY -->
+<section class="card hidden" data-panel="videos">
+  <h2 class="font-semibold mb-2">Video Library</h2>
+  <div id="videoList" class="grid md:grid-cols-3 gap-3"></div>
+</section>
+
+<!-- RULES -->
+<section class="card hidden" data-panel="rules">
+  <h2 class="font-semibold mb-2">Rules & Security</h2>
+  <ul class="list-disc ml-5 text-sm">
+    <li>No bots • No fake traffic • Respect community guidelines.</li>
+    <li>2FA, SSL/TLS, IP rate limiting, reCAPTCHA ku signup/login.</li>
+    <li>KYC imbere yo kwakira Withdrawal.</li>
+    <li>Auditable ledger ku ma Rewards & Payments.</li>
+  </ul>
+</section>
+
+  </main>  <footer class="max-w-6xl mx-auto p-4 text-xs text-gray-500">
+    Prototype v0 • Frontend-only (nta backend). Ibi ni ivyerekana uburyo bizokora.
+  </footer>  <script>
+    // --- Simple State Store ---
+    const state = {
+      user: null,
+      visitorPoints: 0,
+      pointRate: 100, // 100 points = 1 EUR
+      minPayout: 10,
+      creator: {
+        balance: 0,
+        views: 0, likes: 0, comments: 0, subs: 0,
+        ledger: []
+      },
+      videos: [
+        { id: 1, title: 'Burundi Travel – Gitega Highlights', url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { id: 2, title: 'Tutorial – Kwinjiza ama Video neza', url: 'https://www.youtube.com/watch?v=ysz5S6PUM-U' },
+        { id: 3, title: 'Tech – Smartphone Tips 2025', url: 'https://www.youtube.com/watch?v=jNQXAC9IVRw' }
+      ]
+    };
+
+    // --- Helpers ---
+    const $ = (q) => document.querySelector(q);
+    const $$ = (q) => document.querySelectorAll(q);
+
+    function format(n){ return Number(n).toFixed(2); }
+
+    function renderTabs(){
+      const role = state.user?.role || 'visitor';
+      $$('.tab').forEach(btn=>{
+        btn.classList.toggle('active', btn.dataset.tab === role);
+      });
+      $$('.card[data-panel]').forEach(p=>{
+        p.classList.toggle('hidden', p.dataset.panel !== role);
+      });
+    }
+
+    // --- Auth Mock ---
+    $('#loginBtn').addEventListener('click', ()=>{
+      const email = $('#email').value.trim();
+      const role = $('#role').value;
+      if(!email) return alert('Shiramwo email.');
+      state.user = { email, role };
+      $('#authState').textContent = `Logged in as ${email} (${role})`;
+      renderTabs();
+    });
+
+    // --- Tabs Click ---
+    $$('.tab').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const tab = btn.dataset.tab;
+        if(state.user) state.user.role = tab; else state.user = { email: 'guest@local', role: tab };
+        renderTabs();
+      });
+    });
+
+    // --- Visitor: videos + tasks ---
+    function makeVisitorCard(v){
+      const el = document.createElement('div');
+      el.className = 'border rounded-2xl p-3';
+      el.innerHTML = `
+        <div class="font-medium">${v.title}</div>
+        <div class="flex gap-2 mt-2">
+          <a href="${v.url}" target="_blank" class="btn btn-ghost">Watch</a>
+          <button class="btn btn-ghost" data-act="like">Like (+2)</button>
+          <button class="btn btn-ghost" data-act="comment">Comment (+3)</button>
+          <button class="btn btn-ghost" data-act="sub">Subscribe (+5)</button>
+        </div>`;
+      el.querySelectorAll('button[data-act]').forEach(b=>{
+        b.addEventListener('click', ()=>{
+          const act = b.dataset.act;
+          const gain = act==='like'?2:act==='comment'?3:5;
+          state.visitorPoints += gain;
+          $('#vPoints').textContent = state.visitorPoints;
+          $('#claimReward').disabled = state.visitorPoints < state.pointRate;
+          // simulate creator metrics/earnings
+          state.creator[ act==='sub' ? 'subs':'likes' ] += act==='like'?1: act==='comment'?0:1;
+          if(act==='comment') state.creator.comments += 1;
+          state.creator.views += 1;
+          const earned = gain/ state.pointRate; // tiny simulation
+          state.creator.balance += earned;
+          pushLedger(`Earnings from task (${act})`, earned);
+          updateCreatorUI();
+        });
+      });
+      return el;
+    }
+
+    function renderVisitor(){
+      const wrap = $('#visitorVideos');
+      wrap.innerHTML = '';
+      state.videos.forEach(v=> wrap.appendChild(makeVisitorCard(v)) );
+      $('#vPoints').textContent = state.visitorPoints;
+      $('#claimReward').disabled = state.visitorPoints < state.pointRate;
+    }
+
+    $('#claimReward').addEventListener('click', ()=>{
+      if(state.visitorPoints < state.pointRate) return;
+      state.visitorPoints -= state.pointRate;
+      $('#vPoints').textContent = state.visitorPoints;
+      $('#claimReward').disabled = state.visitorPoints < state.pointRate;
+      // Convert to EUR and credit creator (demo logic)
+      const eur = 1;
+      state.creator.balance += eur;
+      pushLedger('Reward converted from points', eur);
+      updateCreatorUI();
+      alert('1 EUR yashizwe kuri balance ya Creator (demo).');
+    });
+
+    // --- Creator UI ---
+    function pushLedger(desc, amount){
+      state.creator.ledger.unshift({ t: new Date().toLocaleString(), d: desc, a: amount });
+    }
+
+    function updateCreatorUI(){
+      $('#cBalance').textContent = format(state.creator.balance);
+      $('#withdrawBtn').disabled = state.creator.balance < state.minPayout;
+      $('#cViews').textContent = state.creator.views;
+      $('#cLikes').textContent = state.creator.likes;
+      $('#cComments').textContent = state.creator.comments;
+      $('#cSubs').textContent = state.creator.subs;
+      const tbody = $('#creatorLedger tbody');
+      tbody.innerHTML = state.creator.ledger.map(row=>
+        `<tr class="border-t"><td class="p-2">${row.t}</td><td class="p-2">${row.d}</td><td class="p-2 text-right">${format(row.a)}</td></tr>`
+      ).join('');
+    }
+
+    $('#withdrawBtn').addEventListener('click', ()=>{
+      alert('Withdrawal request yoherejwe (demo).');
+      pushLedger('Withdrawal requested', -Math.min(state.creator.balance, 10));
+      state.creator.balance = Math.max(0, state.creator.balance - 10);
+      updateCreatorUI();
+    });
+
+    // --- Buyer ---
+    $('#startCampaign').addEventListener('click', ()=>{
+      const url = $('#bUrl').value.trim();
+      const views = Number($('#bViews').value || 0);
+      if(!url || views<=0) return alert('Shiramwo URL na target views.');
+      $('#buyerStatus').textContent = `Campaign iriko irakorwa kuri ${url} – Target ${views} views.`;
+    });
+
+    // --- Admin Rules ---
+    $('#saveRules').addEventListener('click', ()=>{
+      state.minPayout = Number($('#ruleMinPayout').value || 10);
+      state.pointRate = Number($('#rulePointRate').value || 100);
+      $('#ruleSaved').classList.remove('hidden');
+      setTimeout(()=>$('#ruleSaved').classList.add('hidden'), 1500);
+      $('#claimReward').disabled = state.visitorPoints < state.pointRate;
+      updateCreatorUI();
+    });
+
+    // --- Video Library render ---
+    function renderLibrary(){
+      const list = $('#videoList');
+      list.innerHTML = '';
+      state.videos.forEach(v=>{
+        const c = document.createElement('div');
+        c.className = 'border rounded-2xl p-3';
+        c.innerHTML = `<div class="font-medium">${v.title}</div>
+          <iframe class="w-full aspect-video rounded-xl mt-2" src="${v.url.replace('watch?v=','embed/')}" allowfullscreen></iframe>`;
+        list.appendChild(c);
+      });
+    }
+
+    // --- Init ---
+    renderTabs();
+    renderVisitor();
+    updateCreatorUI();
+    renderLibrary();
+  </script></body>
+</html>
